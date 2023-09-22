@@ -1,0 +1,49 @@
+name: Example quest
+description: This example quest to check rather the code is working as expected.
+start_date: 2023-09-30 14:00
+duration: 2h
+
+teams:
+  - name: Blue team
+    description: Blue team description
+    communication: communication_channel_url
+    tasks: 
+      - question: 1st question (BLUE)?
+        hints:
+          - "1st hint... (BLUE)"
+          - "2nd hint... (BLUE)"
+        answer: answer (BLUE)
+
+      - question: 2nd question (BLUE)?
+        hints:
+          - "1st hint... (BLUE)"
+          - "2nd hint... (BLUE)"
+        answer: answer (BLUE)
+
+      - question: 3rd question (BLUE)?
+        hints:
+          - "1st hint... (BLUE)"
+          - "2nd hint... (BLUE)"
+        answer: answer (BLUE)
+
+  - name: Red team
+    description: Red team description
+    communication: communication_channel_url
+    tasks: 
+      - question: 1st question (RED)?
+        hints:
+          - "1st hint... (RED)"
+          - "2nd hint... (RED)"
+        answer: answer (RED)
+
+      - question: 2nd question (RED)?
+        hints:
+          - "1st hint... (RED)"
+          - "2nd hint... (RED)"
+        answer: answer (RED)
+
+      - question: 3rd question (RED)?
+        hints:
+          - "1st hint... (RED)"
+          - "2nd hint... (RED)"
+        answer: answer (RED)
