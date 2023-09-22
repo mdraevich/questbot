@@ -26,12 +26,19 @@ from telegram import (
     KeyboardButton
 )
 
+from questbot.quests import QuestDefinition
+
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.getLevelName(os.environ.get("LOGLEVEL", "WARNING"))
 )
 logger = logging.getLogger(__name__)
+
+
+def show_version_info(update, context):
+    git_version = os.environ.get("GIT_VERSION", "unknown-version")
+    update.message.reply_text(git_version, parse_mode=ParseMode.HTML)     
 
 
 if __name__ == "__main__":
@@ -46,8 +53,8 @@ if __name__ == "__main__":
     updater = Updater(bot_api_key)
     dispatcher = updater.dispatcher
     
-    dispatcher.add_handler(CommandHandler("start", start))
-    dispatcher.add_handler(CommandHandler("help", help_handler))
+    # dispatcher.add_handler(CommandHandler("start", start))
+    # dispatcher.add_handler(CommandHandler("help", help_handler))
     dispatcher.add_handler(CommandHandler("version", show_version_info))
     
     updater.start_polling()
