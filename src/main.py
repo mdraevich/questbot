@@ -31,29 +31,26 @@ from questbot.quests import QuestDefinition
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.getLevelName(os.environ.get("LOGLEVEL", "WARNING"))
+    level=logging.getLevelName(os.environ.get("LOGLEVEL") or "WARNING")
 )
 logger = logging.getLogger(__name__)
 
 
 def show_version_info(update, context):
-    git_version = os.environ.get("GIT_VERSION", "unknown-version")
+    git_version = os.environ.get("GIT_VERSION") or "unknown-version"
     update.message.reply_text(git_version, parse_mode=ParseMode.HTML)     
 
 
 if __name__ == "__main__":
-
     bot_api_key = os.environ.get("BOT_API_KEY", None)
-
     if bot_api_key is None:
         print("specify BOT_API_KEY variable")
         sys.exit(1)
 
-
     updater = Updater(bot_api_key)
     dispatcher = updater.dispatcher
     
-    # dispatcher.add_handler(CommandHandler("start", start))
+    # dispatcher.add_handler(CommandHandler("start", show_version_info))
     # dispatcher.add_handler(CommandHandler("help", help_handler))
     dispatcher.add_handler(CommandHandler("version", show_version_info))
     
