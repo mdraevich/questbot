@@ -4,11 +4,13 @@ version: "3"
 services:
 
   team_quest_bot:
+    init: true
+    restart: unless-stopped
     build:
       context: ./
       dockerfile: Dockerfile
-    restart: unless-stopped
-    init: true
+    volumes:
+      - ./quests:/srv/team_quest_bot/quests
     environment:
       - PYTHONPATH=.
       - TZ=${TZ:-Europe/Minsk}
