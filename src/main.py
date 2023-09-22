@@ -26,7 +26,7 @@ from telegram import (
     KeyboardButton
 )
 
-from questbot.quests import QuestDefinition
+from questbot.quests import QuestController, QuestParser
 
 
 logging.basicConfig(
@@ -34,6 +34,12 @@ logging.basicConfig(
     level=logging.getLevelName(os.environ.get("LOGLEVEL") or "WARNING")
 )
 logger = logging.getLogger(__name__)
+
+
+def start(update, context):
+    parser = QuestParser()
+    update.message.reply_text("\n".join(parser.list('./quests')),
+                              parse_mode=ParseMode.HTML)
 
 
 def show_version_info(update, context):
@@ -44,13 +50,14 @@ def show_version_info(update, context):
 if __name__ == "__main__":
     bot_api_key = os.environ.get("BOT_API_KEY", None)
     if bot_api_key is None:
-        print("specify BOT_API_KEY variable")
+        logger.error("specify BOT_API_KEY variable")
         sys.exit(1)
+
 
     updater = Updater(bot_api_key)
     dispatcher = updater.dispatcher
     
-    # dispatcher.add_handler(CommandHandler("start", show_version_info))
+    dispatcher.add_handler(CommandHandler("start", start))
     # dispatcher.add_handler(CommandHandler("help", help_handler))
     dispatcher.add_handler(CommandHandler("version", show_version_info))
     
