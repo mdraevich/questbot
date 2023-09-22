@@ -1,0 +1,17 @@
+version: "3"
+
+
+services:
+
+  team_quest_bot:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    init: true
+    environment:
+      PYTHONPATH: .
+      TZ:
+      LOGLEVEL: 
+      GIT_VERSION:
+      BOT_API_KEY:

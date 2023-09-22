@@ -1,0 +1,16 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+python-telegram-bot = "==13.14"
+pyyaml = "*"
+jinja2 = "*"
+
+[dev-packages]
+pytest = "*"
+pylint = "*"
+
+[requires]
+python_version = "3.8"
