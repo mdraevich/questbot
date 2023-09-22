@@ -53,6 +53,9 @@ if __name__ == "__main__":
         logger.error("specify BOT_API_KEY variable")
         sys.exit(1)
 
+    parser = QuestParser()
+    objs = [parser.process(item) for item in parser.list('./quests')]
+    logger.debug(objs)
 
     updater = Updater(bot_api_key)
     dispatcher = updater.dispatcher

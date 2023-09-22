@@ -1,6 +1,8 @@
 import os
 import logging
 
+import yaml
+
 
 logger = logging.getLogger(__name__)
 
@@ -61,6 +63,10 @@ class QuestParser():
         and None if processing failed
         """
 
+        obj = self._parse_yaml_file(filepath)
+
+        return None
+
     def list(self, directory):
         """
         returns list of yml/yaml files
@@ -82,6 +88,40 @@ class QuestDefinition():
     """
     """
 
-    def __init__(self):
-        pass
+    def __init__(self, name, description=""):
+        self._name = ""
+        self._description = ""
+        self._start_date = ""
+        self._duration = ""
 
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
+
+    @property
+    def description(self):
+        return self._description
+
+    @description.setter
+    def description(self, value):
+        self._description = value
+
+    @property
+    def start_date(self):
+        return self._start_date
+
+    @start_date.setter
+    def start_date(self, value):
+        self._start_date = value
+
+    @property
+    def duration(self):
+        return self._duration
+
+    @duration.setter
+    def duration(self, value):
+        self._duration = value
