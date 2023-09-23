@@ -26,7 +26,8 @@ from telegram import (
     KeyboardButton
 )
 
-from questbot.quests import QuestController, QuestParser
+from questbot.parsers import QuestParser
+from questbot.controllers import QuestController
 
 
 logging.basicConfig(
