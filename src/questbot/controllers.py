@@ -4,7 +4,6 @@ import threading
 from datetime import datetime, timedelta
 
 from questbot.events import QuestEvent, EventState
-from questbot.definitions import QuestDefinition
 
 
 logger = logging.getLogger(__name__)
@@ -34,9 +33,9 @@ class QuestController():
 
         if quest_definition.name in self._quests:
             return False
-        else:
-            self._quests[quest_definition.name] = QuestEvent(quest_definition)
-            return True
+
+        self._quests[quest_definition.name] = QuestEvent(quest_definition)
+        return True
 
     def update(self):
         """
