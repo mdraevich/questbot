@@ -4,6 +4,10 @@ from datetime import datetime, timedelta
 
 import yaml
 from pytimeparse.timeparse import timeparse
+from jsonschema import validate
+from jsonschema.exceptions import ValidationError
+
+from questbot.schemas import schemav1
 
 
 logger = logging.getLogger(__name__)
@@ -59,6 +63,13 @@ class QuestParser():
                       "cannot parse config options")
             return None
 
+    def _validate_definition(self, definition):
+        try:
+            validate(instance=definition, schema=schemav1)
+            return True
+        except ValidationError:
+            return False
+
     def process(self, filepath):
         """
         returns QuestDefinition object if processing is successfull
@@ -67,11 +78,11 @@ class QuestParser():
 
         obj = self._parse_yaml_file(filepath)
         definition = QuestDefinition()
+        logger.debug(self._validate_definition(obj))
 
-        duration = timeparse(obj["duration"])
-        delta = timedelta(seconds=duration)
-
+        delta = timedelta(seconds=timeparse(obj["duration"]))
         timedate = datetime.fromisoformat(obj["start_date"])
+
         logger.debug(timedate)
         logger.debug(timedate + delta)
         return None
@@ -104,8 +115,8 @@ class QuestDefinition():
     def __init__(self):
         self._name = ""
         self._description = ""
-        self._start_date = ""
-        self._duration = ""
+        self._start_date = datetime.now()
+        self._duration = timedelta(minutes=30)
 
     @property
     def name(self):
