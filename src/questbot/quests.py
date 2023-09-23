@@ -1,7 +1,9 @@
 import os
 import logging
+from datetime import datetime, timedelta
 
 import yaml
+from pytimeparse.timeparse import timeparse
 
 
 logger = logging.getLogger(__name__)
@@ -64,7 +66,14 @@ class QuestParser():
         """
 
         obj = self._parse_yaml_file(filepath)
+        definition = QuestDefinition()
 
+        duration = timeparse(obj["duration"])
+        delta = timedelta(seconds=duration)
+
+        timedate = datetime.fromisoformat(obj["start_date"])
+        logger.debug(timedate)
+        logger.debug(timedate + delta)
         return None
 
     def list(self, directory):
@@ -86,9 +95,13 @@ class QuestParser():
 
 class QuestDefinition():
     """
+    name         - str, quest name 
+    description  - str, quest description
+    start_date   - datetime, quest start date & time
+    duration     - timedelta, quest duration 
     """
 
-    def __init__(self, name, description=""):
+    def __init__(self):
         self._name = ""
         self._description = ""
         self._start_date = ""
@@ -98,30 +111,41 @@ class QuestDefinition():
     def name(self):
         return self._name
 
-    @name.setter
-    def name(self, value):
-        self._name = value
-
     @property
     def description(self):
         return self._description
-
-    @description.setter
-    def description(self, value):
-        self._description = value
 
     @property
     def start_date(self):
         return self._start_date
 
-    @start_date.setter
-    def start_date(self, value):
-        self._start_date = value
-
     @property
     def duration(self):
         return self._duration
 
+    @name.setter
+    def name(self, value):
+        self._name = value
+
+    @description.setter
+    def description(self, value):
+        self._description = value
+
+    @start_date.setter
+    def start_date(self, value):
+        self._start_date = value
+
     @duration.setter
     def duration(self, value):
         self._duration = value
+
+    def create_team(self):
+        pass
+
+
+class TeamDefinition():
+    """
+    """
+
+    def __init__(self):
+        pass
