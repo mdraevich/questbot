@@ -1,5 +1,7 @@
 import os
+import time
 import logging
+import threading
 from datetime import datetime, timedelta
 
 import yaml
@@ -8,6 +10,7 @@ from jsonschema import validate
 from jsonschema.exceptions import ValidationError
 
 from questbot.schemas import schemav1
+from questbot.ext import EventState
 
 
 logger = logging.getLogger(__name__)
@@ -18,25 +21,82 @@ class QuestController():
     responsible for registering all configured quests
     and maintaining their statuses in relevant state
     """
+    UPDATER_INTERVAL = 2
 
     def __init__(self):
-        pass
+        self._quests = {}
+        self._updater_active = True
+        self._updater = threading.Thread(target=self.update)
+        self._updater.start()
 
-    def register(self, question_definition):
+    def register(self, quest_definition):
         """
-        registers QuestionDefinition object and starts
-        controlling its state
+        registers QuestDefinition object for controller updates
+        returns False if already registered
+        returns True if newly registered
         """
 
-        pass
+        if quest_definition.name in self._quests:
+            return False
+        else:
+            self._quests[quest_definition.name] = QuestEvent(quest_definition)
+            return True
 
     def update(self):
         """
-        updates the QuestionDefinition objects to
-        maintain their states (waiting, scheduled, running, finished)
+        updates the QuestDefinition objects to
+        maintain their states (refer to QuestEvent.STATES)
         """
 
-        pass
+        while self._updater_active:
+            for qevent in self._quests.values():
+                curstate = qevent.state
+                curtime = datetime.now()
+
+                if curtime < qevent.quest.start_date - timedelta(minutes=30):
+                    newstate = EventState.WAITING
+                elif curtime < qevent.quest.start_date:
+                    newstate = EventState.SCHEDULED
+                elif curtime < qevent.quest.start_date + qevent.quest.duration:
+                    newstate = EventState.RUNNING
+                else:
+                    newstate = EventState.FINISHED
+
+                logger.debug(f"quest event ['{qevent.quest.name}'] has "
+                             f"curstate={curstate.name} and newstate={newstate.name}")
+                if curstate != newstate:
+                    logger.info(f"quest event ['{qevent.quest.name}'] changed "
+                                f"its state: {curstate.name} => {newstate.name}")
+                qevent.state = newstate
+
+            time.sleep(self.UPDATER_INTERVAL)
+
+    def __del__(self):
+        self._updater_active = False
+
+
+class QuestEvent():
+    """
+    represents quest definition with a state property
+    """
+
+    def __init__(self, quest_definition):
+        self._quest_definition = quest_definition
+        self.state = EventState.UNKNOWN
+
+    @property
+    def state(self):
+        return self._state
+
+    @property
+    def quest(self):
+        return self._quest_definition
+
+    @state.setter
+    def state(self, value):
+        if not isinstance(value, EventState):
+            raise ValueError(f"state must be a value from list {list(EventState)}")
+        self._state = value
 
 
 class QuestParser():
@@ -183,6 +243,7 @@ class QuestDefinition():
 
     def get_teams(self):
         return self._teams[:]
+
 
 class TeamDefinition():
     """

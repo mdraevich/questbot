@@ -54,8 +54,12 @@ if __name__ == "__main__":
         sys.exit(1)
 
     parser = QuestParser()
-    objs = [parser.process(item) for item in parser.list('./quests')]
-    logger.debug(objs)
+    controller = QuestController()
+    quests = [parser.process(item) for item in parser.list('./quests')]
+    is_registered = all([controller.register(quest) for quest in quests])
+    if not is_registered:
+        logger.warning("Duplicated quest names are found, be sure "
+                       "quest configs have no errors and duplicates.")
 
     updater = Updater(bot_api_key)
     dispatcher = updater.dispatcher
