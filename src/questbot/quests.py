@@ -10,7 +10,7 @@ from jsonschema import validate
 from jsonschema.exceptions import ValidationError
 
 from questbot.schemas import schemav1
-from questbot.ext import EventState
+from questbot.events import QuestEvent, EventState
 
 
 logger = logging.getLogger(__name__)
@@ -75,30 +75,6 @@ class QuestController():
 
     def __del__(self):
         self._updater_active = False
-
-
-class QuestEvent():
-    """
-    represents quest definition with a state property
-    """
-
-    def __init__(self, quest_definition):
-        self._quest_definition = quest_definition
-        self.state = EventState.UNKNOWN
-
-    @property
-    def state(self):
-        return self._state
-
-    @property
-    def quest(self):
-        return self._quest_definition
-
-    @state.setter
-    def state(self, value):
-        if not isinstance(value, EventState):
-            raise ValueError(f"state must be a value from list {list(EventState)}")
-        self._state = value
 
 
 class QuestParser():
