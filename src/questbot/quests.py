@@ -21,10 +21,12 @@ class QuestController():
     responsible for registering all configured quests
     and maintaining their statuses in relevant state
     """
-    UPDATER_INTERVAL = 2
+    UPDATER_INTERVAL = 5
+    REGISTRATION_DURATION = 30  # in minutes
 
     def __init__(self):
         self._quests = {}
+        self._reg_delta = timedelta(minutes=self.REGISTRATION_DURATION)
         self._updater_active = True
         self._updater = threading.Thread(target=self.update)
         self._updater.start()
@@ -45,7 +47,7 @@ class QuestController():
     def update(self):
         """
         updates the QuestDefinition objects to
-        maintain their states (refer to QuestEvent.STATES)
+        maintain their states (refer to EventState)
         """
 
         while self._updater_active:
@@ -53,7 +55,7 @@ class QuestController():
                 curstate = qevent.state
                 curtime = datetime.now()
 
-                if curtime < qevent.quest.start_date - timedelta(minutes=30):
+                if curtime < qevent.quest.start_date - self._reg_delta:
                     newstate = EventState.WAITING
                 elif curtime < qevent.quest.start_date:
                     newstate = EventState.SCHEDULED
