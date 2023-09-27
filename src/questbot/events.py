@@ -64,6 +64,22 @@ class EventDistributor():
         self._users[user.user_id] = user
         return True
 
+    def unsubscribe(self, user):
+        """
+        unsubscribes user to events
+        returns False if user is not subscribed
+        returns True if user is unsubscribed
+        """
+
+        if not isinstance(user, User):
+            raise ValueError("user must be an instance of <questbot.users.User> class")
+        if user.user_id not in self._users:
+            return False
+
+        logger.debug(f"user_id={user.user_id} has unsubscribed for events")
+        self._users.pop(user.user_id)
+        return True
+
     def notify(self, event):
         """
         sends to all subscribed users an arised event
