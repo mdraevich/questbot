@@ -1,6 +1,7 @@
 import logging
 from enum import Enum
 
+from questbot.users import User
 
 logger = logging.getLogger(__name__)
 
@@ -68,5 +69,5 @@ class EventDistributor():
         sends to all subscribed users an arised event
         """
 
-        for user in self._users:
-            user.send_message(text=event)
+        for _, user in self._users.items():
+            user.send_message(message=event)
