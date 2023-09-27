@@ -35,3 +35,37 @@ class QuestEvent():
         if not isinstance(value, EventState):
             raise ValueError(f"state must be a value from list {list(EventState)}")
         self._state = value
+
+
+class EventDistributor():
+    """
+    eventditributor is responsible for user notification
+    user should subscribe to a eventditributor instance in order to
+    receive events
+    """
+
+    def __init__(self):
+        self._users = {}
+
+    def subscribe(self, user):
+        """
+        subscribes user to events
+        returns False if user already subscribed
+        returns True if user newly subscribed
+        """
+
+        if not isinstance(user, User):
+            raise ValueError("user must be an instance of <questbot.users.User> class")
+        if user.user_id in self._users:
+            return False
+
+        self._users[user.user_id] = user
+        return True
+
+    def notify(self, event):
+        """
+        sends to all subscribed users an arised event
+        """
+
+        for user in self._users:
+            user.send_message(text=event)
