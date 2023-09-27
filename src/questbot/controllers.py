@@ -3,8 +3,7 @@ import logging
 import threading
 from datetime import datetime, timedelta
 
-from questbot.events import QuestEvent, EventState
-
+from questbot.events import QuestEvent, EventState, EventDistributor
 
 logger = logging.getLogger(__name__)
 
@@ -19,10 +18,17 @@ class QuestController():
 
     def __init__(self):
         self._quests = {}
+        self._distributor = EventDistributor()
         self._reg_delta = timedelta(minutes=self.REGISTRATION_DURATION)
+
+        # separate thread for quest state updates
         self._updater_active = True
         self._updater = threading.Thread(target=self.update)
         self._updater.start()
+
+    @property
+    def distributor(self):
+        return self._distributor
 
     def register(self, quest_definition):
         """
