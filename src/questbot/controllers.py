@@ -84,3 +84,13 @@ class QuestController():
     def __del__(self):
         self._updater_active = False
 
+
+class TeamController():
+    """
+    responsible for interacting with a team
+    in accordance to quest definition
+    responsible for event distribution within the team as well
+    """
+
+    def __init__(self):
+        pass
