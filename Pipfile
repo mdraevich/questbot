@@ -9,6 +9,7 @@ pyyaml = "*"
 jinja2 = "*"
 pytimeparse = "*"
 jsonschema = "*"
+namesgenerator = "*"
 
 [dev-packages]
 pytest = "*"
