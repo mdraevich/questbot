@@ -43,6 +43,14 @@ class QuestController():
         self._quests[quest_definition.name] = QuestEvent(quest_definition)
         return True
 
+    def process_change(self, newstate):
+        if newstate == EventState.SCHEDULED:
+            self.distributor.notify("Quest is scheduled now, sign it off now!")
+        elif newstate == EventState.RUNNING:
+            self.distributor.notify("Quest is running now, registration closed!")
+        elif newstate == EventState.FINISHED:
+            self.distributor.notify("Quest is finished!")
+
     def update(self):
         """
         updates the QuestDefinition objects to
@@ -68,6 +76,7 @@ class QuestController():
                 if curstate != newstate:
                     logger.info(f"quest event ['{qevent.quest.name}'] changed "
                                 f"its state: {curstate.name} => {newstate.name}")
+                    self.process_change(newstate)
                 qevent.state = newstate
 
             time.sleep(self.UPDATER_INTERVAL)
