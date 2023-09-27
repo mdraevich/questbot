@@ -59,6 +59,7 @@ class EventDistributor():
         if user.user_id in self._users:
             return False
 
+        logger.debug(f"user_id={user.user_id} has subscribed for events")
         self._users[user.user_id] = user
         return True
 
