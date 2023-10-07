@@ -105,6 +105,7 @@ class TeamController():
 
     def __init__(self, team_definition):
         self.team = team_definition
+        self.current_task = -1
         self._distributor = EventDistributor()
 
     @property
@@ -132,3 +133,35 @@ class TeamController():
         """
 
         pass
+
+    def next_task(self):
+        """
+        assignes a new task to a team
+        """
+
+        self.current_task += 1
+        if self.current_task == len(self.team.get_tasks):
+            logger.info(f"Team team_definition.name='{self.team.name}' "
+                         "has completed all available tasks")
+        else:
+            logger.info(f"Team team_definition.name='{self.team.name}' "
+                        f"has started task={self.current_task + 1}")
+
+    def start(self):
+        """
+        starts giving tasks for team
+        """
+
+        logger.info(f"Team team_definition.name='{self.team.name}' "
+                    f"has started the quest")
+        self.next_task()
+
+    def stop(self):
+        """
+        stops giving tasks for team
+        clears all subscribed users
+        """
+
+        logger.info(f"Team team_definition.name='{self.team.name}' "
+                    f"has finished the quest")
+        self.distributor.clear()
