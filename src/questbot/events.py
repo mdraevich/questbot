@@ -63,6 +63,13 @@ class QuestEvent():
 
         return next(self._tc_generator)
 
+    def get_team_controllers(self):
+        """
+        returns a list of registered team controllers
+        """
+
+        return self._team_controllers
+
 
 class EventDistributor():
     """
