@@ -55,11 +55,21 @@ class QuestController():
         self._quests[quest_definition.name] = qevent
         return True
 
+    def run_quest(self, qevent):
+        """
+        runs a quest by calling start() in every
+        registered team controller in QuestEvent
+        """
+
+        for tc in qevent.get_team_controllers():
+            tc.start()
+
     def process_change(self, qevent, newstate):
         if newstate == EventState.SCHEDULED:
             self.distributor.notify("Quest is scheduled now, sign it off now!")
         elif newstate == EventState.RUNNING:
             self.distributor.notify("Quest is running now, registration closed!")
+            self.run_quest(qevent)
         elif newstate == EventState.FINISHED:
             self.distributor.notify("Quest is finished!")
 
@@ -140,7 +150,7 @@ class TeamController():
         """
 
         self.current_task += 1
-        if self.current_task == len(self.team.get_tasks):
+        if self.current_task == len(self.team.get_tasks()):
             logger.info(f"Team team_definition.name='{self.team.name}' "
                          "has completed all available tasks")
         else:
