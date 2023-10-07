@@ -113,3 +113,10 @@ class EventDistributor():
 
         for _, user in self._users.items():
             user.send_message(message=event)
+
+    def clear(self):
+        """
+        unsubscribes all users from distribution
+        """
+
+        self._users = {}
