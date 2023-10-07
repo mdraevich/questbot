@@ -16,12 +16,15 @@ class EventState(Enum):
 
 class QuestEvent():
     """
-    represents quest definition with a state property
+    represents quest definition with a state property and team controllers dict
+    team controllers should be present if state is EventState.SCHEDULED or EventState.RUNNING
     """
 
     def __init__(self, quest_definition):
         self._quest_definition = quest_definition
+        self._team_controllers = []
         self.state = EventState.UNKNOWN
+        self._tc_generator = self._endless_team_controller_list()
 
     @property
     def state(self):
@@ -36,6 +39,29 @@ class QuestEvent():
         if not isinstance(value, EventState):
             raise ValueError(f"state must be a value from list {list(EventState)}")
         self._state = value
+
+    def register_team_controller(self, team_controller):
+        """
+        registers team controller for quest event
+        """
+
+        self._team_controllers.append(team_controller)
+
+    def _endless_team_controller_list(self):
+        """
+        generator for endlessly iterating over registered team controllers
+        """
+
+        while True:
+            for tc in self._team_controllers:
+                yield tc
+
+    def next_team_controller(self):
+        """
+        returns next registered team controller
+        """
+
+        return next(self._tc_generator)
 
 
 class EventDistributor():
