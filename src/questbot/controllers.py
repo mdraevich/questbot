@@ -116,6 +116,7 @@ class TeamController():
     def __init__(self, team_definition):
         self.team = team_definition
         self.current_task = -1
+        self.current_hints = []
         self._distributor = EventDistributor()
 
     @property
@@ -134,7 +135,23 @@ class TeamController():
         return self._distributor
 
     def give_hint(self):
-        pass
+        """
+        returns True if hint is available
+        returns False if there're no hints
+        """
+
+        if len(self.current_hints):
+            hint_value = self.current_hints.pop(0)
+            logger.info(f"Team team_definition.name='{self.team.name}' "
+                        f"has requested a hint ({len(self.current_hints)} "
+                        f"more available) for task={self.current_task + 1}")
+
+            return True
+        else:
+            logger.info(f"Team team_definition.name='{self.team.name}' "
+                        f"has requested a hint, but there're no avaiable hints "
+                        f"for task={self.current_task + 1}")
+            return False
 
     def check_answer(self, value):
         """
@@ -169,6 +186,7 @@ class TeamController():
         else:
             logger.info(f"Team team_definition.name='{self.team.name}' "
                         f"has started task={self.current_task + 1}")
+            self.current_hints = self.team.get_tasks()[self.current_task].get_hints()
 
     def start(self):
         """
