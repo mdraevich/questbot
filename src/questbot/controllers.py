@@ -142,7 +142,20 @@ class TeamController():
         return False if answer is wrong
         """
 
-        pass
+        correct_value = self.team.get_tasks()[self.current_task].answer
+        if value.lower() == correct_value.lower():
+            logger.info(f"Team team_definition.name='{self.team.name}' "
+                        f"has given a correct answer='{value}' "
+                        f"to task={self.current_task + 1}")
+
+            self.next_task()
+            return True
+        else:
+            logger.info(f"Team team_definition.name='{self.team.get_tasks()}' "
+                        f"has given a wrong answer='{value}' "
+                        f"to task={self.current_task + 1}")
+
+            return False
 
     def next_task(self):
         """
