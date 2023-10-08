@@ -28,6 +28,7 @@ from telegram import (
 
 from questbot.parsers import QuestParser
 from questbot.controllers import QuestController
+from questbot.users import User
 
 
 logging.basicConfig(
@@ -38,9 +39,12 @@ logger = logging.getLogger(__name__)
 
 
 def start(update, context):
-    parser = QuestParser()
-    update.message.reply_text("\n".join(parser.list('./quests')),
-                              parse_mode=ParseMode.HTML)
+    user = User(update.message.from_user["id"],
+                update.message.chat_id,
+                updater)
+    user.name = update.message.from_user["username"] or "NONAME"
+    controller.distributor.subscribe(user)
+    update.message.reply_text(f"hello!", parse_mode=ParseMode.HTML)
 
 
 def show_version_info(update, context):
