@@ -1,4 +1,5 @@
 import os
+import re
 import logging
 
 import namesgenerator
@@ -111,6 +112,9 @@ class UserController():
 
         return answer_templates[template_name][lang_code]
 
+    def _validate_nickname(self, nickname):
+        return re.fullmatch('[\\w]{3,25}', nickname)
+
     def cmd_help(self, update, context):
         pass
 
@@ -152,13 +156,23 @@ class UserController():
 
     def cmd_change_nickname(self, update, context):
         lang_code = str(update.message.from_user.language_code)
-        if lang_code not in answer_templates["hello"]:
-            lang_code = default_lang_code
 
         user_id = update.message.from_user["id"]
-        new_nickname = " ".join(context.args)
         user = self._get_user(user_id)
-        user.name = " ".join(context.args)
-
-        answer = answer_templates["nickname"][lang_code].substitute(name=user.name)
-        update.message.reply_text(answer, parse_mode=ParseMode.HTML)
+        if user is None:
+            raise KeyError(f"No user is found for user_id={user_id}")
+            
+        new_nickname = " ".join(context.args)
+        if self._validate_nickname(new_nickname):
+            user.name = new_nickname
+            answer_tmpl = self._get_answer_template("change_nickname_success",
+                                                    lang_code)
+            answer = answer_tmpl.substitute()
+            update.message.reply_text(answer, parse_mode=ParseMode.HTML)
+        else:
+            logger.warning(f"User user_id={user_id} has supplied "
+                           "an invalid nickname")
+            answer_tmpl = self._get_answer_template("change_nickname_fail",
+                                                    lang_code)
+            answer = answer_tmpl.substitute()
+            update.message.reply_text(answer, parse_mode=ParseMode.HTML)
