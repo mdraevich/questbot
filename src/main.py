@@ -15,7 +15,7 @@ from telegram.ext import Updater
 from questbot.parsers import QuestParser
 from questbot.controllers import QuestController
 from questbot.users import User
-from questbot.telegram import UserController
+from questbot.telegram.controllers import UserController
 
 
 logging.basicConfig(
