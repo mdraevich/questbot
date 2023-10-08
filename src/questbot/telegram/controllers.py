@@ -68,17 +68,24 @@ class UserController():
         for route in routes:
             self.dispatcher.add_handler(route)
 
-    def _register_new_user(self, user):
+    def _register_new_user(self, user_id, chat_id, username):
         """
-        returns True if user is successfully registered
-        returns False if user is already known
+        returns an instance of User class by user_id
+        if user_id is not in user database (self._users),
+        then create a new User class and save it in user database
         """
 
-        if user.user_id in self._users.keys():
-            logger.info(f"User user_id={user.user_id}")
+        if user_id in self._users.keys():
+            logger.info(f"User user_id={user_id}"
+                         " is already registered")
         else:
-            self._users[user.user_id] = user
-            controller.distributor.subscribe(user)
+            logger.info(f"User user_id={user_id} is now registered")
+            user = User(user_id, chat_id, self.dispatcher)
+            user.name = username or namesgenerator.get_random_name()
+            self._users[user_id] = user
+
+        self.controller.distributor.subscribe(self._users[user_id])
+        return self._users[user_id]
 
     def cmd_help(self, update, context):
         pass
@@ -88,12 +95,13 @@ class UserController():
         update.message.reply_text(git_version, parse_mode=ParseMode.HTML)
 
     def cmd_start(self, update, context):
-        user = User(update.message.from_user["id"],
-                    update.message.chat_id,
-                    self._dispatcher)
-        user.name = update.message.from_user["username"] \
-                        or namesgenerator.get_random_name()
-        update.message.reply_text(f"Hello, {user.name}!", parse_mode=ParseMode.HTML)
+        user_id = update.message.from_user["id"]
+        chat_id = update.message.chat_id
+        username = update.message.from_user["username"]
+
+        user = self._register_new_user(user_id, chat_id, username)
+        update.message.reply_text(f"Hello, {user.name}!",
+                                  parse_mode=ParseMode.HTML)
 
     def cmd_register(self, update, context):
         pass
