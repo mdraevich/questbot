@@ -71,31 +71,45 @@ class UserController():
 
     def _register_new_user(self, user_id, chat_id, username):
         """
-        returns an instance of User class by user_id
-        if user_id is not in user database (self._users),
-        then create a new User class and save it in user database
+        returns True if user is registered successfully
+        returns False if user is already registered
         """
 
         if user_id in self._users.keys():
             logger.info(f"User user_id={user_id}"
                          " is already registered")
+            return False
         else:
             logger.info(f"User user_id={user_id} is now registered")
             user = User(user_id, chat_id, self.dispatcher)
             user.name = username or namesgenerator.get_random_name()
             self._users[user_id] = user
-
-        self.controller.distributor.subscribe(self._users[user_id])
-        return self._users[user_id]
+            return True
 
     def _get_user(self, user_id):
         """
-        returns an instance of User class by user_id
-        if user_id is not in user database (self._users),
-        then create a new User class and save it in user database
+        returns an instance of User class by user_id 
+            from user database (self._users)
+        
+        returns None if no user exists for specified user_id
         """
 
-        return self._users[user_id]
+        return self._users.get(user_id, None)
+
+    def _get_answer_template(self, template_name, prefer_lang_code):
+        """
+        returns answer template for specified name and preferred lang code
+        """
+
+        if template_name not in answer_templates:
+            raise KeyError(f"Cannot find an answer template with "
+                           f"template_name={template_name}")
+        if prefer_lang_code not in answer_templates[template_name]:
+            lang_code = default_lang_code
+        else:
+            lang_code = prefer_lang_code
+
+        return answer_templates[template_name][lang_code]
 
     def cmd_help(self, update, context):
         pass
@@ -106,15 +120,16 @@ class UserController():
 
     def cmd_start(self, update, context):
         lang_code = str(update.message.from_user.language_code)
-        if lang_code not in answer_templates["hello"]:
-            lang_code = default_lang_code
+        answer_tmpl = self._get_answer_template("hello", lang_code)
 
         user_id = update.message.from_user["id"]
         chat_id = update.message.chat_id
         username = update.message.from_user["username"]
 
-        user = self._register_new_user(user_id, chat_id, username)
-        answer = answer_templates["hello"][lang_code].substitute(name=user.name)
+        self._register_new_user(user_id, chat_id, username)
+        self.controller.distributor.subscribe(self._get_user(user_id))
+
+        answer = answer_tmpl.substitute(name=self._get_user(user_id).name)
         update.message.reply_text(answer, parse_mode=ParseMode.HTML)
 
     def cmd_register(self, update, context):
