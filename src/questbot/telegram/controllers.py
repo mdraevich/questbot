@@ -21,7 +21,7 @@ from telegram import (
 
 from questbot.users import User, UserState
 from questbot.controllers import QuestController
-
+from questbot.telegram.answers import answer_templates, default_lang_code
 
 logger = logging.getLogger(__name__)
 
@@ -63,7 +63,8 @@ class UserController():
         routes = [
             CommandHandler("help", self.cmd_help),
             CommandHandler("start", self.cmd_start),
-            CommandHandler("version", self.cmd_version)
+            CommandHandler("version", self.cmd_version),
+            CommandHandler("nickname", self.cmd_change_nickname)
         ]
         for route in routes:
             self.dispatcher.add_handler(route)
@@ -87,6 +88,15 @@ class UserController():
         self.controller.distributor.subscribe(self._users[user_id])
         return self._users[user_id]
 
+    def _get_user(self, user_id):
+        """
+        returns an instance of User class by user_id
+        if user_id is not in user database (self._users),
+        then create a new User class and save it in user database
+        """
+
+        return self._users[user_id]
+
     def cmd_help(self, update, context):
         pass
 
@@ -95,13 +105,17 @@ class UserController():
         update.message.reply_text(git_version, parse_mode=ParseMode.HTML)
 
     def cmd_start(self, update, context):
+        lang_code = str(update.message.from_user.language_code)
+        if lang_code not in answer_templates["hello"]:
+            lang_code = default_lang_code
+
         user_id = update.message.from_user["id"]
         chat_id = update.message.chat_id
         username = update.message.from_user["username"]
 
         user = self._register_new_user(user_id, chat_id, username)
-        update.message.reply_text(f"Hello, {user.name}!",
-                                  parse_mode=ParseMode.HTML)
+        answer = answer_templates["hello"][lang_code].substitute(name=user.name)
+        update.message.reply_text(answer, parse_mode=ParseMode.HTML)
 
     def cmd_register(self, update, context):
         pass
@@ -120,3 +134,16 @@ class UserController():
 
     def cmd_give_answer(self, update, context):
         pass
+
+    def cmd_change_nickname(self, update, context):
+        lang_code = str(update.message.from_user.language_code)
+        if lang_code not in answer_templates["hello"]:
+            lang_code = default_lang_code
+
+        user_id = update.message.from_user["id"]
+        new_nickname = " ".join(context.args)
+        user = self._get_user(user_id)
+        user.name = " ".join(context.args)
+
+        answer = answer_templates["nickname"][lang_code].substitute(name=user.name)
+        update.message.reply_text(answer, parse_mode=ParseMode.HTML)
