@@ -146,11 +146,15 @@ class TeamController():
                         f"has requested a hint ({len(self.current_hints)} "
                         f"more available) for task={self.current_task + 1}")
 
+            self.distributor.notify("Your team member has requested a hint!")
+            self.distributor.notify(hint_value)
             return True
         else:
             logger.info(f"Team team_definition.name='{self.team.name}' "
                         f"has requested a hint, but there're no avaiable hints "
                         f"for task={self.current_task + 1}")
+            self.distributor.notify("Your team member has requested a hint, "
+                                    "but there're no avaiable ones :c")
             return False
 
     def check_answer(self, value):
@@ -164,29 +168,35 @@ class TeamController():
             logger.info(f"Team team_definition.name='{self.team.name}' "
                         f"has given a correct answer='{value}' "
                         f"to task={self.current_task + 1}")
-
+            self.distributor.notify("Your team member has sent a correct answer!")
             self.next_task()
             return True
         else:
             logger.info(f"Team team_definition.name='{self.team.get_tasks()}' "
                         f"has given a wrong answer='{value}' "
                         f"to task={self.current_task + 1}")
-
+            self.distributor.notify("Your team member has sent a wrong answer!")
             return False
 
     def next_task(self):
         """
         assignes a new task to a team
+        returns True if a new task available
+        returns False if no tasks are available
         """
 
         self.current_task += 1
         if self.current_task == len(self.team.get_tasks()):
             logger.info(f"Team team_definition.name='{self.team.name}' "
                          "has completed all available tasks")
+            self.distributor.notify("Team, I have no questions for you :c")
+            return False
         else:
             logger.info(f"Team team_definition.name='{self.team.name}' "
                         f"has started task={self.current_task + 1}")
+            self.distributor.notify("Team, be ready for new question!")
             self.current_hints = self.team.get_tasks()[self.current_task].get_hints()
+            return True
 
     def start(self):
         """
@@ -195,6 +205,7 @@ class TeamController():
 
         logger.info(f"Team team_definition.name='{self.team.name}' "
                     f"has started the quest")
+        self.distributor.notify("Team, be ready, we will begin NOW!")
         self.next_task()
 
     def stop(self):
@@ -205,4 +216,5 @@ class TeamController():
 
         logger.info(f"Team team_definition.name='{self.team.name}' "
                     f"has finished the quest")
+        self.distributor.notify("Team, nice game, it's finished NOW!")
         self.distributor.clear()
