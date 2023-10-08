@@ -43,7 +43,7 @@ def start(update, context):
                 update.message.chat_id,
                 updater)
     user.name = update.message.from_user["username"] or "NONAME"
-    controller.distributor.subscribe(user)
+    quest_controller.distributor.subscribe(user)
     update.message.reply_text(f"hello!", parse_mode=ParseMode.HTML)
 
 
@@ -59,9 +59,9 @@ if __name__ == "__main__":
         sys.exit(1)
 
     parser = QuestParser()
-    controller = QuestController()
+    quest_controller = QuestController()
     quests = [parser.process(item) for item in parser.list('./quests')]
-    is_registered = all([controller.register(quest) for quest in quests])
+    is_registered = all([quest_controller.register(quest) for quest in quests])
     if not is_registered:
         logger.warning("Duplicated quest names are found, be sure "
                        "quest configs have no errors and duplicates.")
