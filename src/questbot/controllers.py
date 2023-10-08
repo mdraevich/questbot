@@ -115,8 +115,6 @@ class TeamController():
 
     def __init__(self, team_definition):
         self.team = team_definition
-        self.current_task = -1
-        self.current_hints = []
         self._distributor = EventDistributor()
 
     @property
@@ -206,6 +204,8 @@ class TeamController():
         logger.info(f"Team team_definition.name='{self.team.name}' "
                     f"has started the quest")
         self.distributor.notify("Team, be ready, we will begin NOW!")
+        self.current_hints = []
+        self.current_task = -1
         self.next_task()
 
     def stop(self):
