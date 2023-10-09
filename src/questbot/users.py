@@ -19,6 +19,7 @@ class User():
 
     def __init__(self, user_id, chat_id, dispatcher):
         self._name = ""
+        self._lang_code = ""
         self._user_id = user_id
         self._chat_id = chat_id
         self._dispatcher = dispatcher
@@ -37,8 +38,8 @@ class User():
         return self._chat_id
 
     @property
-    def lang(self):
-        return self._lang
+    def lang_code(self):
+        return self._lang_code
 
     @property
     def state(self):
@@ -50,11 +51,11 @@ class User():
             raise ValueError("name must be string")
         self._name = value
 
-    @lang.setter
-    def lang(self, value):
+    @lang_code.setter
+    def lang_code(self, value):
         if not isinstance(value, str):
             raise ValueError("value must be string")
-        self._lang = value
+        self._lang_code = value
 
     @state.setter
     def state(self, value):
