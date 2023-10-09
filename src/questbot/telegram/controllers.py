@@ -22,7 +22,7 @@ from telegram import (
 
 from questbot.users import User, UserState
 from questbot.controllers import QuestController
-from questbot.telegram.answers import answer_templates, default_lang_code
+from questbot.telegram.answers import BotTemplates
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +36,7 @@ class UserController():
     def __init__(self, dispatcher, quest_controller):
         self.controller = quest_controller
         self.dispatcher = dispatcher
+        self._bot = BotTemplates()
         self._users = {}
         self._configure_routing()
 
@@ -98,27 +99,12 @@ class UserController():
 
         return self._users.get(user_id, None)
 
-    def _get_answer_template(self, template_name, prefer_lang_code):
-        """
-        returns answer template for specified name and preferred lang code
-        """
-
-        if template_name not in answer_templates:
-            raise KeyError(f"Cannot find an answer template with "
-                           f"template_name={template_name}")
-        if prefer_lang_code not in answer_templates[template_name]:
-            lang_code = default_lang_code
-        else:
-            lang_code = prefer_lang_code
-
-        return answer_templates[template_name][lang_code]
-
     def _validate_nickname(self, nickname):
         return re.fullmatch('[\\w]{3,25}', nickname)
 
     def cmd_help(self, update, context):
         lang_code = str(update.message.from_user.language_code)
-        answer_tmpl = self._get_answer_template("help", lang_code)
+        answer_tmpl = self._bot.get_answer_template("help", lang_code)
         answer = answer_tmpl.substitute()
         update.message.reply_text(answer, parse_mode=ParseMode.HTML)
 
@@ -128,7 +114,7 @@ class UserController():
 
     def cmd_start(self, update, context):
         lang_code = str(update.message.from_user.language_code)
-        answer_tmpl = self._get_answer_template("hello", lang_code)
+        answer_tmpl = self._bot.get_answer_template("hello", lang_code)
 
         user_id = update.message.from_user["id"]
         chat_id = update.message.chat_id
@@ -170,14 +156,14 @@ class UserController():
         new_nickname = " ".join(context.args)
         if self._validate_nickname(new_nickname):
             user.name = new_nickname
-            answer_tmpl = self._get_answer_template("change_nickname_success",
+            answer_tmpl = self._bot.get_answer_template("change_nickname_success",
                                                     lang_code)
             answer = answer_tmpl.substitute()
             update.message.reply_text(answer, parse_mode=ParseMode.HTML)
         else:
             logger.warning(f"User user_id={user_id} has supplied "
                            "an invalid nickname")
-            answer_tmpl = self._get_answer_template("change_nickname_fail",
+            answer_tmpl = self._bot.get_answer_template("change_nickname_fail",
                                                     lang_code)
             answer = answer_tmpl.substitute()
             update.message.reply_text(answer, parse_mode=ParseMode.HTML)
