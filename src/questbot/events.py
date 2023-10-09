@@ -2,6 +2,8 @@ import logging
 from enum import Enum
 
 from questbot.users import User
+from questbot.telegram.answers import BotTemplates
+
 
 logger = logging.getLogger(__name__)
 
@@ -80,6 +82,7 @@ class EventDistributor():
 
     def __init__(self):
         self._users = {}
+        self._bot = BotTemplates()
 
     def subscribe(self, user):
         """
@@ -120,6 +123,17 @@ class EventDistributor():
 
         for _, user in self._users.items():
             user.send_message(message=event)
+
+    def notify_template(self, template_name, **kwargs):
+        """
+        sends to all subscribed users an arised event
+        """
+
+        for _, user in self._users.items():
+            answer_tmpl = self._bot.get_answer_template(template_name,
+                                                        user.lang_code)
+            answer = answer_tmpl.substitute(**kwargs)
+            user.send_message(message=answer)
 
     def clear(self):
         """
