@@ -135,6 +135,7 @@ class UserController():
         username = update.message.from_user["username"]
 
         self._register_new_user(user_id, chat_id, username)
+        self._get_user(user_id).lang_code = lang_code
         self.controller.distributor.subscribe(self._get_user(user_id))
 
         answer = answer_tmpl.substitute(name=self._get_user(user_id).name)
