@@ -65,7 +65,8 @@ class UserController():
             CommandHandler("help", self.cmd_help),
             CommandHandler("start", self.cmd_start),
             CommandHandler("version", self.cmd_version),
-            CommandHandler("nickname", self.cmd_change_nickname)
+            CommandHandler("nickname", self.cmd_change_nickname),
+            CommandHandler("help", self.cmd_help)
         ]
         for route in routes:
             self.dispatcher.add_handler(route)
@@ -116,7 +117,10 @@ class UserController():
         return re.fullmatch('[\\w]{3,25}', nickname)
 
     def cmd_help(self, update, context):
-        pass
+        lang_code = str(update.message.from_user.language_code)
+        answer_tmpl = self._get_answer_template("help", lang_code)
+        answer = answer_tmpl.substitute()
+        update.message.reply_text(answer, parse_mode=ParseMode.HTML)
 
     def cmd_version(self, update, context):
         git_version = os.environ.get("GIT_VERSION") or "unknown-version"
