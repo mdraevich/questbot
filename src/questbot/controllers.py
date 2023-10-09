@@ -66,7 +66,13 @@ class QuestController():
 
     def process_change(self, qevent, newstate):
         if newstate == EventState.SCHEDULED:
-            self.distributor.notify("Quest is scheduled now, sign it off now!")
+            self.distributor.notify_template(
+                "quest_scheduled",
+                date=qevent.quest.start_date,
+                duration=qevent.quest.duration,
+                quest_name=qevent.quest.name,
+                quest_description=qevent.quest.description,
+                teams="\n".join([ f"▫️{team.name}" for team in qevent.quest.get_teams() ]))
         elif newstate == EventState.RUNNING:
             self.distributor.notify("Quest is running now, registration closed!")
             self.run_quest(qevent)
