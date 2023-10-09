@@ -1,6 +1,8 @@
 import logging
 from enum import Enum
 
+from telegram import ParseMode
+
 
 logger = logging.getLogger(__name__)
 
@@ -64,4 +66,6 @@ class User():
         self._state = value
 
     def send_message(self, message):
-        self._dispatcher.bot.sendMessage(chat_id=self.chat_id, text=message)
+        self._dispatcher.bot.sendMessage(chat_id=self.chat_id,
+                                         text=message,
+                                         parse_mode=ParseMode.HTML)
