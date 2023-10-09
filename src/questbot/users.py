@@ -37,6 +37,10 @@ class User():
         return self._chat_id
 
     @property
+    def lang(self):
+        return self._lang
+
+    @property
     def state(self):
         return self._state
 
@@ -45,6 +49,12 @@ class User():
         if not isinstance(value, str):
             raise ValueError("name must be string")
         self._name = value
+
+    @lang.setter
+    def lang(self, value):
+        if not isinstance(value, str):
+            raise ValueError("value must be string")
+        self._lang = value
 
     @state.setter
     def state(self, value):
