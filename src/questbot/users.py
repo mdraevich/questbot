@@ -3,15 +3,15 @@ from enum import Enum
 
 from telegram import ParseMode
 
+from questbot.controllers import TeamController
 
 logger = logging.getLogger(__name__)
 
 
 class UserState(Enum):
     IDLE = 1
-    REGISTERED = 2
-    PLAYING = 3
-    DELETED = 4
+    PLAYING = 2
+    DELETED = 3
 
 
 class User():
@@ -25,6 +25,7 @@ class User():
         self._user_id = user_id
         self._chat_id = chat_id
         self._dispatcher = dispatcher
+        self._team_controller = None
         self.state = UserState.IDLE
 
     @property
@@ -69,3 +70,38 @@ class User():
         self._dispatcher.bot.sendMessage(chat_id=self.chat_id,
                                          text=message,
                                          parse_mode=ParseMode.HTML)
+
+    def set_team_controller(self, team_controller):
+        """
+        sets team controller and state to UserState.PLAYING
+        raise ValueError if team controller instance
+            is not of TeamController class
+        """
+
+        if not isinstance(team_controller, TeamController):
+            raise ValueError("team_controller must be an "
+                             "instance of 'TeamController'")
+        else:
+            self._team_controller = team_controller
+            self.state = UserState.PLAYING
+
+    def get_team_controller(self):
+        """
+        returns team controller instance
+        """
+
+        return self._team_controller
+
+    def remove_team_controller(self):
+        """
+        sets team controller to None
+        changes user state to UserState.IDLE
+        """
+
+        if self.state == UserState.DELETED:
+            logger.error(f"User user_id={self.user_id} and "
+                         f"username={self.username} is already deleted, but "
+                         "trying to remove team controller for it")
+        else:
+            self._team_controller = None
+            self.state = UserState.IDLE
