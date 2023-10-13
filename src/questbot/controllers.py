@@ -63,7 +63,8 @@ class QuestController():
 
     def join_quest(self, user, qevent_id):
         """
-        returns teamcontroller object by qevent_id lookup in eventidmapper
+        returns True if user has been successfully registered for a quest event
+        returns False if user failed to be registered for a quest event
         """
 
         try:
@@ -92,6 +93,7 @@ class QuestController():
     def process_change(self, qevent, newstate):
         if newstate == EventState.SCHEDULED:
             qevent_id = self._event_mapper.register_event(qevent)
+            qevent.annotations["qevent_id"] = qevent_id
             logger.info("QuestEvent instance is now registered in EventIdMapper "
                         f"with qevent_id={qevent_id}")
             self.distributor.notify_template(
@@ -105,9 +107,21 @@ class QuestController():
                                   for team in qevent.quest.get_teams() ]))
 
         elif newstate == EventState.RUNNING:
-            self.distributor.notify("Quest is running now, registration closed!")
+            qevent_id = qevent.annotations.get("qevent_id", "")
+            if self._event_mapper.remove_event(qevent_id):
+                qevent.annotations.pop(qevent_id)
+                logger.info("QuestEvent instance is now removed from "
+                            f"EventIdMapper by qevent_id={qevent_id}")
+
             self.run_quest(qevent)
+
         elif newstate == EventState.FINISHED:
+            qevent_id = qevent.annotations.get("qevent_id", "")
+            if self._event_mapper.remove_event(qevent_id):
+                qevent.annotations.pop(qevent_id)
+                logger.info("QuestEvent instance is now removed from "
+                            f"EventIdMapper by qevent_id={qevent_id}")
+
             self.distributor.notify("Quest is finished!")
 
     def update(self):

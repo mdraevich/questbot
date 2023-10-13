@@ -26,8 +26,13 @@ class QuestEvent():
     def __init__(self, quest_definition):
         self._quest_definition = quest_definition
         self._team_controllers = []
+        self.annotations = {}
         self.state = EventState.UNKNOWN
         self._tc_generator = self._endless_team_controller_list()
+
+    @property
+    def annotations(self):
+        return self._annotations
 
     @property
     def state(self):
@@ -42,6 +47,12 @@ class QuestEvent():
         if not isinstance(value, EventState):
             raise ValueError(f"state must be a value from list {list(EventState)}")
         self._state = value
+
+    @annotations.setter
+    def annotations(self, value):
+        if not isinstance(value, dict):
+            raise ValueError(f"value must be a type of 'dict'")
+        self._annotations = value
 
     def register_team_controller(self, team_controller):
         """
