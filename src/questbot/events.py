@@ -180,11 +180,11 @@ class EventIdMapper():
                 break
 
         assert is_success, "Cannot generate unique identifier for qevent"
-        assert isinstance(free_id, str), "Generated identifier is not "
-                                         "a type of 'str'"
-        assert len(free_id) == self.ID_LENGTH, "Generated identifier has "
-                                               "incorrect length "
-                                               f"{len(free_id)} != {self.ID_LENGTH}"
+        assert isinstance(free_id, str), ("Generated identifier is not "
+                                          "a type of 'str'")
+        assert len(free_id) == self.ID_LENGTH, ("Generated identifier has "
+                                                "incorrect length "
+                                                f"{len(free_id)} != {self.ID_LENGTH}")
         self._qevents[free_id] = qevent
         return free_id
 
