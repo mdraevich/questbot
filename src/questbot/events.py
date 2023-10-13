@@ -1,3 +1,4 @@
+import random
 import logging
 from enum import Enum
 
@@ -141,3 +142,71 @@ class EventDistributor():
         """
 
         self._users = {}
+
+
+class EventIdMapper():
+    """
+    class is responsible for registering & reading events by its id
+
+    NOTE:
+    qevent identifier is <ID_LENGTH>-digit number,
+    so total number of events to be registered is limited
+    """
+    MAX_RANDOM_CYCLES = 10
+    ID_LENGTH = 4
+
+    def __init__(self):
+        self._qevents = {}
+
+    def _generate_random_id(self):
+        """
+        generates random string id and returns it
+        """
+
+        short_id = str(random.randint(0, 10000))
+        full_id = "0" * (self.ID_LENGTH - len(short_id)) + short_id
+        return full_id
+
+    def register_event(self, qevent):
+        """
+        registers qevent in local db and returns its identifier
+        """
+        
+        is_success = False
+        for i in range(self.MAX_RANDOM_CYCLES):
+            free_id = self._generate_random_id()
+            if free_id not in self._qevents.keys():
+                is_success = True
+                break
+
+        assert is_success, "Cannot generate unique identifier for qevent"
+        assert isinstance(free_id, str), "Generated identifier is not "
+                                         "a type of 'str'"
+        assert len(free_id) == self.ID_LENGTH, "Generated identifier has "
+                                               "incorrect length "
+                                               f"{len(free_id)} != {self.ID_LENGTH}"
+        self._qevents[free_id] = qevent
+        return free_id
+
+    def get_event(self, qevent_id):
+        """
+        returns qevent from local db by identifier
+        raise exception KeyError if qevent_id not found
+        """
+
+        if qevent_id not in self._qevents.keys():
+            raise KeyError(f"Cannot find qevent_id={qevent} in local database")
+
+        return self._qevents[qevent_id]
+
+    def remove_event(self, qevent_id):
+        """
+        returns True if it has removed the element
+        returns False if it no qevent_id was found in local db
+        """
+
+        if qevent_id not in self._qevents.keys():
+            return False
+        else:
+            self._qevents.pop(qevent_id)
+            return True
