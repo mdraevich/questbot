@@ -3,7 +3,12 @@ import logging
 import threading
 from datetime import datetime, timedelta
 
-from questbot.events import QuestEvent, EventState, EventDistributor
+from questbot.events import (
+    QuestEvent,
+    EventState,
+    EventDistributor,
+    EventIdMapper
+)
 from questbot.definitions import QuestDefinition, TeamDefinition
 
 logger = logging.getLogger(__name__)
@@ -20,6 +25,7 @@ class QuestController():
     def __init__(self):
         self._quests = {}
         self._distributor = EventDistributor()
+        self._event_mapper = EventIdMapper()
         self._reg_delta = timedelta(minutes=self.REGISTRATION_DURATION)
 
         # separate thread for quest state updates
@@ -66,13 +72,17 @@ class QuestController():
 
     def process_change(self, qevent, newstate):
         if newstate == EventState.SCHEDULED:
+            qevent_id = self._event_mapper.register_event(qevent)
             self.distributor.notify_template(
                 "quest_scheduled",
+                qevent_id=qevent_id,
                 date=qevent.quest.start_date,
                 duration=qevent.quest.duration,
                 quest_name=qevent.quest.name,
                 quest_description=qevent.quest.description,
-                teams="\n".join([ f"▫️{team.name}" for team in qevent.quest.get_teams() ]))
+                teams="\n".join([ f"▫️{team.name}"
+                                  for team in qevent.quest.get_teams() ]))
+
         elif newstate == EventState.RUNNING:
             self.distributor.notify("Quest is running now, registration closed!")
             self.run_quest(qevent)

@@ -68,8 +68,9 @@ class BotTemplates():
                            "<b>$quest_name</b>\n"
                            "<i>$quest_description</i>\n\n"
                            "<b>Участвующие команды:</b>\n"
-                           "$teams"
-                           ""
+                           "$teams\n\n"
+                           "⚠️ <b>Для участия выполните следующую команду:</b>\n"
+                           "<code>/register $qevent_id</code>"
                            ""
                            "")
         }
