@@ -168,6 +168,7 @@ class TeamController():
 
     def __init__(self, team_definition):
         self.team = team_definition
+        self._is_running = False
         self._distributor = EventDistributor()
 
     @property
@@ -182,6 +183,10 @@ class TeamController():
         self._team = value
 
     @property
+    def is_running(self):
+        return self._is_running
+
+    @property
     def distributor(self):
         return self._distributor
 
@@ -189,7 +194,13 @@ class TeamController():
         """
         returns True if hint is available
         returns False if there're no hints
+        returns None if method execution is not allowed
         """
+
+        if not self.is_running:
+            logger.debug("Cannot give hints to user because "
+                         f"self.is_running={self.is_running}")
+            return None
 
         if len(self.current_hints):
             hint_value = self.current_hints.pop(0)
@@ -212,7 +223,13 @@ class TeamController():
         """
         return True if answer is right
         return False if answer is wrong
+        returns None if method execution is not allowed
         """
+
+        if not self.is_running:
+            logger.debug("Cannot check the user's answer because "
+                         f"self.is_running={self.is_running}")
+            return None
 
         correct_value = self.team.get_tasks()[self.current_task].answer
         if value.lower() == correct_value.lower():
@@ -256,6 +273,7 @@ class TeamController():
 
         logger.info(f"Team team_definition.name='{self.team.name}' "
                     f"has started the quest")
+        self._is_running = True
         self.distributor.notify("Team, be ready, we will begin NOW!")
         self.current_hints = []
         self.current_task = -1
@@ -269,5 +287,6 @@ class TeamController():
 
         logger.info(f"Team team_definition.name='{self.team.name}' "
                     f"has finished the quest")
+        self._is_running = False
         self.distributor.notify("Team, nice game, it's finished NOW!")
         self.distributor.clear()
