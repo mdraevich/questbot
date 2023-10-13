@@ -74,7 +74,9 @@ class QuestController():
             return False
 
         try:
-            qevent.next_team_controller().distributor.subscribe(user)
+            team_controller = qevent.next_team_controller()
+            team_controller.distributor.subscribe(user)
+            user.set_team_controller(team_controller)
         except ValueError:
             logger.exception("Cannot subscribe user to TeamController.Distributor")
             return False
