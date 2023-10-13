@@ -195,7 +195,7 @@ class EventIdMapper():
         """
 
         if qevent_id not in self._qevents.keys():
-            raise KeyError(f"Cannot find qevent_id={qevent} in local database")
+            raise KeyError(f"Cannot find qevent_id={qevent_id} in local database")
 
         return self._qevents[qevent_id]
 
