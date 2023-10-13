@@ -73,7 +73,13 @@ class BotTemplates():
                            "<code>/register $qevent_id</code>"
                            ""
                            "")
-        }
+        },
+        "register_qevent_success": {
+            "ru": Template("✅ Ты успешно зарегистрировался на квест #$qevent_id!")
+        },
+        "register_qevent_fail": {
+            "ru": Template("❌ Ошибка!\nПроверьте корректность команды регистрации.")
+        },
     }
 
     def get_answer_template(self, template_name, prefer_lang_code):

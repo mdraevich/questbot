@@ -67,6 +67,7 @@ class UserController():
             CommandHandler("start", self.cmd_start),
             CommandHandler("version", self.cmd_version),
             CommandHandler("nickname", self.cmd_change_nickname),
+            CommandHandler("register", self.cmd_register),
             CommandHandler("help", self.cmd_help)
         ]
         for route in routes:
@@ -102,6 +103,9 @@ class UserController():
     def _validate_nickname(self, nickname):
         return re.fullmatch('[\\w]{3,25}', nickname)
 
+    def _validate_qevent_id(self, qevent_id):
+        return re.fullmatch('[\\d]{4}', qevent_id)
+
     def cmd_help(self, update, context):
         lang_code = str(update.message.from_user.language_code)
         answer_tmpl = self._bot.get_answer_template("help", lang_code)
@@ -128,7 +132,22 @@ class UserController():
         update.message.reply_text(answer, parse_mode=ParseMode.HTML)
 
     def cmd_register(self, update, context):
-        pass
+        lang_code = str(update.message.from_user.language_code)
+        user_id = update.message.from_user["id"]
+        user = self._get_user(user_id)
+        if user is None:
+            raise KeyError(f"No user is found for user_id={user_id}")
+
+        qevent_id = " ".join(context.args)
+        answer_tmpl = self._bot.get_answer_template(
+                                        "register_qevent_fail", lang_code)
+        if self._validate_qevent_id(qevent_id):
+            if self.controller.join_quest(user, qevent_id):
+                answer_tmpl = self._bot.get_answer_template(
+                                        "register_qevent_success", lang_code)
+
+        answer = answer_tmpl.substitute(qevent_id=qevent_id)
+        update.message.reply_text(answer, parse_mode=ParseMode.HTML)
 
     def cmd_unregister(self, update, context):
         pass

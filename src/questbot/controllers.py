@@ -61,6 +61,25 @@ class QuestController():
         self._quests[quest_definition.name] = qevent
         return True
 
+    def join_quest(self, user, qevent_id):
+        """
+        returns teamcontroller object by qevent_id lookup in eventidmapper
+        """
+
+        try:
+            qevent = self._event_mapper.get_event(qevent_id)
+        except KeyError:
+            logger.debug(f"Cannot find qevent_id={qevent_id} in EventIdMapper")
+            return False
+
+        try:
+            qevent.next_team_controller().distributor.subscribe(user)
+        except ValueError:
+            logger.exception("Cannot subscribe user to TeamController.Distributor")
+            return False
+
+        return True
+
     def run_quest(self, qevent):
         """
         runs a quest by calling start() in every
@@ -73,6 +92,8 @@ class QuestController():
     def process_change(self, qevent, newstate):
         if newstate == EventState.SCHEDULED:
             qevent_id = self._event_mapper.register_event(qevent)
+            logger.info("QuestEvent instance is now registered in EventIdMapper "
+                        f"with qevent_id={qevent_id}")
             self.distributor.notify_template(
                 "quest_scheduled",
                 qevent_id=qevent_id,
