@@ -99,6 +99,11 @@ class BotTemplates():
         "get_hint_fail": {
             "ru": Template("❌ Ты не участвуешь в квесте, чтобы запросить подсказку.")
         },
+        "quest_started_info": {
+            "ru": Template("📣 <b>Квест начинается</b>!\n\n"
+                           "<i>$team_description</i>\n"
+                           "<a href='$team_communication'>Командный чат</a>")
+        },
     }
 
     def get_answer_template(self, template_name, prefer_lang_code):
