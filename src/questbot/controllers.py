@@ -207,21 +207,26 @@ class TeamController():
     def distributor(self):
         return self._distributor
 
-    def give_hint(self):
+    def give_hint(self, user):
         """
+        accepts args:
+            user - user who requested the hint
         returns True if hint is available
         returns False if there're no hints
         returns None if method execution is not allowed
         """
 
         if not self.is_running:
-            logger.debug("Cannot give hints to user because "
-                         f"self.is_running={self.is_running}")
+            logger.debug("Cannot give hints requested by user with "
+                         f"user_id={user.user_id} and "
+                         f"team_definition.name='{self.team.name}' "
+                         f"because self.is_running={self.is_running}")
             return None
 
         if len(self.current_hints):
             hint_value = self.current_hints.pop(0)
-            logger.info(f"Team team_definition.name='{self.team.name}' "
+            logger.info(f"User with user_id={user.user_id} and "
+                        f"team_definition.name='{self.team.name}' "
                         f"has requested a hint ({len(self.current_hints)} "
                         f"more available) for task={self.current_task + 1}")
 
@@ -229,9 +234,11 @@ class TeamController():
             self.distributor.notify(hint_value)
             return True
         else:
-            logger.info(f"Team team_definition.name='{self.team.name}' "
-                        f"has requested a hint, but there're no avaiable hints "
-                        f"for task={self.current_task + 1}")
+            logger.info(f"User with user_id={user.user_id} and "
+                        f"team_definition.name='{self.team.name}' "
+                        f"has requested a hint, but there're no "
+                        f"avaiable hints for task={self.current_task + 1}")
+
             self.distributor.notify("Your team member has requested a hint, "
                                     "but there're no avaiable ones :c")
             return False
