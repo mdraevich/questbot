@@ -304,7 +304,10 @@ class TeamController():
         logger.info(f"Team team_definition.name='{self.team.name}' "
                     f"has started the quest")
         self._is_running = True
-        self.distributor.notify("Team, be ready, we will begin NOW!")
+        self.distributor.notify_template(
+                                    "quest_started_info",
+                                    team_description=self.team.description,
+                                    team_communication=self.team.communication)
         self.current_hints = []
         self.current_task = -1
         self.next_task()
