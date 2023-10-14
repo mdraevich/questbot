@@ -21,7 +21,7 @@ from telegram import (
 )
 
 from questbot.users import User, UserState
-from questbot.controllers import QuestController
+from questbot.controllers import QuestController, TeamController
 from questbot.telegram.answers import BotTemplates
 
 logger = logging.getLogger(__name__)
@@ -69,6 +69,7 @@ class UserController():
             CommandHandler("nickname", self.cmd_change_nickname),
             CommandHandler("register", self.cmd_register),
             CommandHandler("unregister", self.cmd_unregister),
+            CommandHandler("answer", self.cmd_give_answer),
             CommandHandler("help", self.cmd_help)
         ]
         for route in routes:
@@ -103,6 +104,9 @@ class UserController():
 
     def _validate_nickname(self, nickname):
         return re.fullmatch('[\\w]{3,25}', nickname)
+
+    def _validate_answer(self, value):
+        return re.fullmatch('[\\w]{1,25}', value)
 
     def _validate_qevent_id(self, qevent_id):
         return re.fullmatch('[\\d]{4}', qevent_id)
@@ -175,7 +179,30 @@ class UserController():
         pass
 
     def cmd_give_answer(self, update, context):
-        pass
+        lang_code = str(update.message.from_user.language_code)
+        user_id = update.message.from_user["id"]
+        user = self._get_user(user_id)
+        if user is None:
+            raise KeyError(f"No user is found for user_id={user_id}")
+
+        user_answer = " ".join(context.args)
+        if user.state != UserState.PLAYING:
+            template_name = "give_answer_fail"
+        elif not self._validate_answer(user_answer):
+            template_name = "give_answer_wrong_format"
+        else:
+            team_controller = user.get_team_controller()
+            assert isinstance(team_controller, TeamController), \
+                    (f"User user_id={user_id} has incorrect team_controller "
+                     f"of class '{type(team_controller)}'")
+
+            team_controller.check_answer(user, user_answer)
+            return
+
+        answer_tmpl = self._bot.get_answer_template(template_name, lang_code)
+        answer = answer_tmpl.substitute()
+        update.message.reply_text(answer, parse_mode=ParseMode.HTML)
+
 
     def cmd_change_nickname(self, update, context):
         lang_code = str(update.message.from_user.language_code)
