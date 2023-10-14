@@ -329,5 +329,5 @@ class TeamController():
         logger.info(f"Team team_definition.name='{self.team.name}' "
                     f"has finished the quest")
         self._is_running = False
-        self.distributor.notify("Team, nice game, it's finished NOW!")
+        self.distributor.notify_template("quest_stopped")
         self.distributor.clear()
