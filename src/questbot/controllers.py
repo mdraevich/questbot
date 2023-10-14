@@ -287,13 +287,15 @@ class TeamController():
         if self.current_task == len(self.team.get_tasks()):
             logger.info(f"Team team_definition.name='{self.team.name}' "
                          "has completed all available tasks")
-            self.distributor.notify("Team, I have no questions for you :c")
+            self.distributor.notify_template("quest_no_tasks_left")
             return False
         else:
             logger.info(f"Team team_definition.name='{self.team.name}' "
                         f"has started task={self.current_task + 1}")
-            self.distributor.notify("Team, be ready for new question!")
-            self.current_hints = self.team.get_tasks()[self.current_task].get_hints()
+            cur_task = self.team.get_tasks()[self.current_task]
+            self.distributor.notify_template("quest_new_task",
+                                             task_question=cur_task.question)
+            self.current_hints = cur_task.get_hints()
             return True
 
     def start(self):
