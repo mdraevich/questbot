@@ -76,7 +76,7 @@ class UserController():
         for route in routes:
             self.dispatcher.add_handler(route)
 
-    def _register_new_user(self, user_id, chat_id, username):
+    def _register_new_user(self, user_id, chat_id, first_name, last_name):
         """
         returns True if user is registered successfully
         returns False if user is already registered
@@ -89,7 +89,7 @@ class UserController():
         else:
             logger.info(f"User user_id={user_id} is now registered")
             user = User(user_id, chat_id, self.dispatcher)
-            user.name = username or namesgenerator.get_random_name()
+            user.name = f"{first_name} {last_name}".strip()
             self._users[user_id] = user
             return True
 
@@ -128,9 +128,10 @@ class UserController():
 
         user_id = update.message.from_user["id"]
         chat_id = update.message.chat_id
-        username = update.message.from_user["username"]
+        first_name = update.message.from_user["first_name"] or " "
+        last_name = update.message.from_user["last_name"] or " "
 
-        self._register_new_user(user_id, chat_id, username)
+        self._register_new_user(user_id, chat_id, first_name, last_name)
         self._get_user(user_id).lang_code = lang_code
         self.controller.distributor.subscribe(self._get_user(user_id))
 
