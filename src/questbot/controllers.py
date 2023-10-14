@@ -230,8 +230,9 @@ class TeamController():
                         f"has requested a hint ({len(self.current_hints)} "
                         f"more available) for task={self.current_task + 1}")
 
-            self.distributor.notify("Your team member has requested a hint!")
-            self.distributor.notify(hint_value)
+            self.distributor.notify_template("get_hint_success",
+                                             username=user.name,
+                                             task_hint=hint_value)
             return True
         else:
             logger.info(f"User with user_id={user.user_id} and "
@@ -239,8 +240,8 @@ class TeamController():
                         f"has requested a hint, but there're no "
                         f"avaiable hints for task={self.current_task + 1}")
 
-            self.distributor.notify("Your team member has requested a hint, "
-                                    "but there're no avaiable ones :c")
+            self.distributor.notify_template("get_hint_empty",
+                                             username=user.name)
             return False
 
     def check_answer(self, user, value):
