@@ -66,7 +66,6 @@ class UserController():
             CommandHandler("help", self.cmd_help),
             CommandHandler("start", self.cmd_start),
             CommandHandler("version", self.cmd_version),
-            CommandHandler("nickname", self.cmd_change_nickname),
             CommandHandler("register", self.cmd_register),
             CommandHandler("unregister", self.cmd_unregister),
             CommandHandler("answer", self.cmd_give_answer),
