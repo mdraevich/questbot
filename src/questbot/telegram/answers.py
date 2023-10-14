@@ -87,6 +87,15 @@ class BotTemplates():
         "unregister_fail": {
             "ru": Template("❌ Ты не зарегистрировался на квест, чтобы покинуть его.")
         },
+        "give_answer_fail": {
+            "ru": Template("❌ Ты не участвуешь в квесте, чтобы прислать ответ.")
+        },
+        "give_answer_wrong_format": {
+            "ru": Template("❌ Ответ не принят, так как не удовлетворяет условиям:\n"
+                           "1. содержит от 1 до 25 символов;\n"
+                           "2. содержит исключительно буквы, цифры и нижнее "
+                           "подчеркивание.")
+        },
     }
 
     def get_answer_template(self, template_name, prefer_lang_code):
