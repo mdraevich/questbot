@@ -58,6 +58,7 @@ class QuestController():
                          f"team_definition.name='{team_definition.name}' "
                          f"for qevent.quest.name='{qevent.quest.name}'")
 
+        qevent.shuffle_team_controllers()
         self._quests[quest_definition.name] = qevent
         return True
 

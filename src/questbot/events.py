@@ -54,13 +54,19 @@ class QuestEvent():
             raise ValueError(f"value must be a type of 'dict'")
         self._annotations = value
 
+    def shuffle_team_controllers(self):
+        """
+        shuffles registered team controllers
+        """
+
+        random.shuffle(self._team_controllers)
+
     def register_team_controller(self, team_controller):
         """
         registers team controller for quest event
         """
 
         self._team_controllers.append(team_controller)
-        random.shuffle(self._team_controllers)
 
     def _endless_team_controller_list(self):
         """
