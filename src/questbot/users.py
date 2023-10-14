@@ -3,8 +3,6 @@ from enum import Enum
 
 from telegram import ParseMode
 
-from questbot.controllers import TeamController
-
 logger = logging.getLogger(__name__)
 
 
@@ -74,16 +72,10 @@ class User():
     def set_team_controller(self, team_controller):
         """
         sets team controller and state to UserState.PLAYING
-        raise ValueError if team controller instance
-            is not of TeamController class
         """
 
-        if not isinstance(team_controller, TeamController):
-            raise ValueError("team_controller must be an "
-                             "instance of 'TeamController'")
-        else:
-            self._team_controller = team_controller
-            self.state = UserState.PLAYING
+        self._team_controller = team_controller
+        self.state = UserState.PLAYING
 
     def get_team_controller(self):
         """
@@ -94,8 +86,9 @@ class User():
 
     def remove_team_controller(self):
         """
-        sets team controller to None
-        changes user state to UserState.IDLE
+        sets team controller to None and changes user state to UserState.IDLE
+        returns True if a team controller is set
+        returns False if a team controller is already None
         """
 
         if self.state == UserState.DELETED:
@@ -103,5 +96,7 @@ class User():
                          f"username={self.username} is already deleted, but "
                          "trying to remove team controller for it")
         else:
-            self._team_controller = None
+            is_playing = self._team_controller is not None
             self.state = UserState.IDLE
+            self._team_controller = None
+            return is_playing
