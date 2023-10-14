@@ -96,6 +96,9 @@ class BotTemplates():
                            "2. содержит исключительно буквы, цифры и нижнее "
                            "подчеркивание.")
         },
+        "get_hint_fail": {
+            "ru": Template("❌ Ты не участвуешь в квесте, чтобы запросить подсказку.")
+        },
     }
 
     def get_answer_template(self, template_name, prefer_lang_code):
