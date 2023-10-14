@@ -236,28 +236,34 @@ class TeamController():
                                     "but there're no avaiable ones :c")
             return False
 
-    def check_answer(self, value):
+    def check_answer(self, user, value):
         """
+        accepts args:
+            user - user who sent the answer
+            value - user answer value
         return True if answer is right
         return False if answer is wrong
         returns None if method execution is not allowed
         """
 
         if not self.is_running:
-            logger.debug("Cannot check the user's answer because "
+            logger.debug("Cannot check the answer for "
+                         f"user_id={user.user_id} because "
                          f"self.is_running={self.is_running}")
             return None
 
         correct_value = self.team.get_tasks()[self.current_task].answer
         if value.lower() == correct_value.lower():
-            logger.info(f"Team team_definition.name='{self.team.name}' "
+            logger.info(f"User with user_id={user.user_id} and "
+                        f"team_definition.name='{self.team.name}' "
                         f"has given a correct answer='{value}' "
                         f"to task={self.current_task + 1}")
             self.distributor.notify("Your team member has sent a correct answer!")
             self.next_task()
             return True
         else:
-            logger.info(f"Team team_definition.name='{self.team.get_tasks()}' "
+            logger.info(f"User with user_id={user.user_id} and "
+                        f"team_definition.name='{self.team.name}' "
                         f"has given a wrong answer='{value}' "
                         f"to task={self.current_task + 1}")
             self.distributor.notify("Your team member has sent a wrong answer!")
