@@ -265,7 +265,9 @@ class TeamController():
                         f"team_definition.name='{self.team.name}' "
                         f"has given a correct answer='{value}' "
                         f"to task={self.current_task + 1}")
-            self.distributor.notify("Your team member has sent a correct answer!")
+            self.distributor.notify_template("quest_correct_answer",
+                                             username=user.name,
+                                             answer=value)
             self.next_task()
             return True
         else:
@@ -273,7 +275,9 @@ class TeamController():
                         f"team_definition.name='{self.team.name}' "
                         f"has given a wrong answer='{value}' "
                         f"to task={self.current_task + 1}")
-            self.distributor.notify("Your team member has sent a wrong answer!")
+            self.distributor.notify_template("quest_wrong_answer",
+                                             username=user.name,
+                                             answer=value)
             return False
 
     def next_task(self):
