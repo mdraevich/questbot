@@ -117,6 +117,14 @@ class BotTemplates():
         "quest_correct_answer": {
             "ru": Template("✅ <b>$username</b> прислал правильный ответ — <i>$answer</i>!")
         },
+        "get_hint_success": {
+            "ru": Template("ℹ️ <b>$username</b> запросил для команды подсказку!\n\n"
+                           "<i>$task_hint</i>")
+        },
+        "get_hint_empty": {
+            "ru": Template("ℹ️ <b>$username</b> запросил для команды подсказку, "
+                           "но подсказки уже закончились.")
+        },
     }
 
     def get_answer_template(self, template_name, prefer_lang_code):
