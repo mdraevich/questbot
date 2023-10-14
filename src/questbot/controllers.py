@@ -61,6 +61,13 @@ class QuestController():
         self._quests[quest_definition.name] = qevent
         return True
 
+    def leave_quest(self, user):
+        """
+        removes user's team controller
+        """
+
+        user.remove_team_controller(team_controller)
+
     def join_quest(self, user, qevent_id):
         """
         returns True if user has been successfully registered for a quest event
