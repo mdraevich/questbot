@@ -104,6 +104,13 @@ class BotTemplates():
                            "<i>$team_description</i>\n"
                            "<a href='$team_communication'>Командный чат</a>")
         },
+        "quest_new_task": {
+            "ru": Template("📣 <b>Получено новое задание</b>!\n\n"
+                           "<i>$task_question</i>")
+        },
+        "quest_no_tasks_left": {
+            "ru": Template("📣 <b>Вы выполнили все задания</b>!")
+        },
     }
 
     def get_answer_template(self, template_name, prefer_lang_code):
