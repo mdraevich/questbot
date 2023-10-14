@@ -60,6 +60,7 @@ class QuestEvent():
         """
 
         self._team_controllers.append(team_controller)
+        random.shuffle(self._team_controllers)
 
     def _endless_team_controller_list(self):
         """
