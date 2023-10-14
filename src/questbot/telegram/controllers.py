@@ -70,6 +70,7 @@ class UserController():
             CommandHandler("register", self.cmd_register),
             CommandHandler("unregister", self.cmd_unregister),
             CommandHandler("answer", self.cmd_give_answer),
+            CommandHandler("hint", self.cmd_get_hint),
             CommandHandler("help", self.cmd_help)
         ]
         for route in routes:
@@ -176,7 +177,23 @@ class UserController():
         pass
 
     def cmd_get_hint(self, update, context):
-        pass
+        lang_code = str(update.message.from_user.language_code)
+        user_id = update.message.from_user["id"]
+        user = self._get_user(user_id)
+        if user is None:
+            raise KeyError(f"No user is found for user_id={user_id}")
+
+        if user.state != UserState.PLAYING:
+            template_name = "get_hint_fail"
+            answer_tmpl = self._bot.get_answer_template(template_name, lang_code)
+            answer = answer_tmpl.substitute()
+            update.message.reply_text(answer, parse_mode=ParseMode.HTML)
+        else:
+            team_controller = user.get_team_controller()
+            assert isinstance(team_controller, TeamController), \
+                    (f"User user_id={user_id} has incorrect team_controller "
+                     f"of class '{type(team_controller)}'")
+            team_controller.give_hint(user)
 
     def cmd_give_answer(self, update, context):
         lang_code = str(update.message.from_user.language_code)
