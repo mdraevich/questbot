@@ -64,9 +64,17 @@ class QuestController():
     def leave_quest(self, user):
         """
         removes user's team controller
+        returns True if success
+        returns False if user has no team controllers
         """
 
-        user.remove_team_controller(team_controller)
+        team_controller = user.get_team_controller()
+        if team_controller is None:
+            return False
+
+        team_controller.distributor.unsubscribe(user)
+        user.remove_team_controller()
+        return True
 
     def join_quest(self, user, qevent_id):
         """
@@ -84,6 +92,8 @@ class QuestController():
             team_controller = qevent.next_team_controller()
             team_controller.distributor.subscribe(user)
             user.set_team_controller(team_controller)
+            logger.info(f"User user_id={user.user_id} has joined "
+                        f"team team_name='{team_controller.team.name}'")
         except ValueError:
             logger.exception("Cannot subscribe user to TeamController.Distributor")
             return False
@@ -118,7 +128,7 @@ class QuestController():
         elif newstate == EventState.RUNNING:
             qevent_id = qevent.annotations.get("qevent_id", "")
             if self._event_mapper.remove_event(qevent_id):
-                qevent.annotations.pop(qevent_id)
+                qevent.annotations.pop("qevent_id")
                 logger.info("QuestEvent instance is now removed from "
                             f"EventIdMapper by qevent_id={qevent_id}")
 
