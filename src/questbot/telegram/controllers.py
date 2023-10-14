@@ -68,6 +68,7 @@ class UserController():
             CommandHandler("version", self.cmd_version),
             CommandHandler("nickname", self.cmd_change_nickname),
             CommandHandler("register", self.cmd_register),
+            CommandHandler("unregister", self.cmd_unregister),
             CommandHandler("help", self.cmd_help)
         ]
         for route in routes:
@@ -150,7 +151,19 @@ class UserController():
         update.message.reply_text(answer, parse_mode=ParseMode.HTML)
 
     def cmd_unregister(self, update, context):
-        pass
+        lang_code = str(update.message.from_user.language_code)
+        user_id = update.message.from_user["id"]
+        user = self._get_user(user_id)
+        if user is None:
+            raise KeyError(f"No user is found for user_id={user_id}")
+
+        template_name = "unregister_fail"
+        if self.controller.leave_quest(user):
+            template_name = "unregister_success"
+
+        answer_tmpl = self._bot.get_answer_template(template_name, lang_code)
+        answer = answer_tmpl.substitute()
+        update.message.reply_text(answer, parse_mode=ParseMode.HTML)
 
     def cmd_about_team(self, update, context):
         pass
