@@ -111,6 +111,12 @@ class BotTemplates():
         "quest_no_tasks_left": {
             "ru": Template("📣 <b>Вы выполнили все задания</b>!")
         },
+        "quest_wrong_answer": {
+            "ru": Template("⚠️ <b>$username</b> прислал неверный ответ — <i>$answer</i>!")
+        },
+        "quest_correct_answer": {
+            "ru": Template("✅ <b>$username</b> прислал правильный ответ — <i>$answer</i>!")
+        },
     }
 
     def get_answer_template(self, template_name, prefer_lang_code):
