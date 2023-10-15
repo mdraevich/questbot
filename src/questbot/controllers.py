@@ -1,5 +1,6 @@
 import time
 import logging
+import tabulate
 import threading
 from datetime import datetime, timedelta
 
@@ -10,6 +11,7 @@ from questbot.events import (
     EventIdMapper
 )
 from questbot.definitions import QuestDefinition, TeamDefinition
+from questbot.results import EfficiencyController
 
 logger = logging.getLogger(__name__)
 
@@ -187,6 +189,7 @@ class TeamController():
     def __init__(self, team_definition):
         self.team = team_definition
         self._is_running = False
+        self._eff_controller = EfficiencyController()
         self._distributor = EventDistributor()
 
     @property
@@ -234,6 +237,7 @@ class TeamController():
             self.distributor.notify_template("get_hint_success",
                                              username=user.name,
                                              task_hint=hint_value)
+            self._eff_controller.add_penalty(2)
             return True
         else:
             logger.info(f"User with user_id={user.user_id} and "
@@ -270,6 +274,7 @@ class TeamController():
             self.distributor.notify_template("quest_correct_answer",
                                              username=user.name,
                                              answer=value)
+            self._eff_controller.finish_task()
             self.next_task()
             return True
         else:
@@ -280,6 +285,7 @@ class TeamController():
             self.distributor.notify_template("quest_wrong_answer",
                                              username=user.name,
                                              answer=value)
+            self._eff_controller.add_penalty(3)
             return False
 
     def next_task(self):
@@ -293,7 +299,15 @@ class TeamController():
         if self.current_task == len(self.team.get_tasks()):
             logger.info(f"Team team_definition.name='{self.team.name}' "
                          "has completed all available tasks")
-            self.distributor.notify_template("quest_no_tasks_left")
+
+            formatted_appraise = [
+                [f"#{idx + 1}", *item]
+                for idx, item in enumerate(self._eff_controller.appraise())]
+            self.distributor.notify_template(
+                "quest_no_tasks_left",
+                total_points=self._eff_controller.appraise_total(),
+                list_points=tabulate.tabulate(formatted_appraise,
+                                              tablefmt="orgtbl"))
             self.finish()
             return False
         else:
@@ -303,6 +317,7 @@ class TeamController():
             self.distributor.notify_template("quest_new_task",
                                              task_question=cur_task.question)
             self.current_hints = cur_task.get_hints()
+            self._eff_controller.new_task()
             return True
 
     def start(self):
