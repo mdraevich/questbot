@@ -11,9 +11,11 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./quests:/srv/team_quest_bot/quests
+      - ./data:/srv/team_quest_bot/data
     environment:
       - PYTHONPATH=.
       - TZ=${TZ:-Europe/Minsk}
       - LOGLEVEL=${LOGLEVEL}
       - GIT_VERSION=${GIT_VERSION}
       - BOT_API_KEY=${BOT_API_KEY}
+      - STORAGE_PATH=${STORAGE_PATH}

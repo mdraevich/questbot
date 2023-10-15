@@ -27,6 +27,7 @@ logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
     bot_api_key = os.environ.get("BOT_API_KEY", None)
+    storage_path = os.environ.get("STORAGE_PATH", "./data.pkl")
     if bot_api_key is None:
         logger.error("specify BOT_API_KEY variable")
         sys.exit(1)
@@ -42,6 +43,6 @@ if __name__ == "__main__":
     updater = Updater(bot_api_key)
     dispatcher = updater.dispatcher
     
-    user_controller = UserController(dispatcher, quest_controller)    
+    user_controller = UserController(dispatcher, quest_controller, storage_path)    
     updater.start_polling()
     updater.idle()
