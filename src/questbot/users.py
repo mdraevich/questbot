@@ -65,9 +65,14 @@ class User():
         self._state = value
 
     def send_message(self, message):
-        self._dispatcher.bot.sendMessage(chat_id=self.chat_id,
-                                         text=message,
-                                         parse_mode=ParseMode.HTML)
+        if self.state == UserState.DELETED:
+            logger.error(f"User user_id={self.user_id} and "
+                         f"username={self.username} is already deleted, but "
+                         "trying to send message to it")
+        else:
+            self._dispatcher.bot.sendMessage(chat_id=self.chat_id,
+                                             text=message,
+                                             parse_mode=ParseMode.HTML)
 
     def set_team_controller(self, team_controller):
         """

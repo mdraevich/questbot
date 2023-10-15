@@ -96,6 +96,7 @@ class UserController():
             CommandHandler("unregister", self.cmd_unregister),
             CommandHandler("answer", self.cmd_give_answer),
             CommandHandler("hint", self.cmd_get_hint),
+            CommandHandler("deleteme", self.cmd_delete_profile),
             CommandHandler("help", self.cmd_help)
         ]
         for route in routes:
@@ -249,7 +250,6 @@ class UserController():
         answer = answer_tmpl.substitute()
         update.message.reply_text(answer, parse_mode=ParseMode.HTML)
 
-
     def cmd_change_nickname(self, update, context):
         lang_code = str(update.message.from_user.language_code)
 
@@ -272,3 +272,21 @@ class UserController():
                                                     lang_code)
             answer = answer_tmpl.substitute()
             update.message.reply_text(answer, parse_mode=ParseMode.HTML)
+
+    def cmd_delete_profile(self, update, context):
+        lang_code = str(update.message.from_user.language_code)
+
+        user_id = update.message.from_user["id"]
+        user = self._get_user(user_id)
+        if user is None:
+            raise KeyError(f"No user is found for user_id={user_id}")
+            
+        self.controller.distributor.unsubscribe(user)
+        user.remove_team_controller()
+        user.state = UserState.DELETED
+        self._users.pop(user.user_id)
+        self.save_users()
+        
+        answer_tmpl = self._bot.get_answer_template("delete_profile", lang_code)
+        answer = answer_tmpl.substitute()
+        update.message.reply_text(answer, parse_mode=ParseMode.HTML)
