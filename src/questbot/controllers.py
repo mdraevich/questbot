@@ -112,6 +112,61 @@ class QuestController():
         for tc in qevent.get_team_controllers():
             tc.start()
 
+    def stop_quest(self, qevent):
+        """
+        runs a quest by calling start() in every
+        registered team controller in QuestEvent
+        """
+
+        for tc in qevent.get_team_controllers():
+            tc.stop()
+
+    def clear_quest(self, qevent):
+        """
+        runs a quest by calling start() in every
+        registered team controller in QuestEvent
+        """
+
+        for tc in qevent.get_team_controllers():
+            tc.clear()
+
+    def publish_results(self, qevent):
+        """
+        publishes the results of each team and a final winner of the quest
+        """
+
+        max_points, winner = -1000, None
+        for tc in qevent.get_team_controllers():
+            total_points, point_per_task = tc.get_results()
+            formatted_appraise = [
+                [f"#{idx + 1}", *item]
+                for idx, item in enumerate(point_per_task)]
+
+            self.distributor.notify_template(
+                    "quest_results_in_detail",
+                    team_name=tc.team.name,
+                    total_points=total_points,
+                    points_per_task=tabulate.tabulate(formatted_appraise,
+                                                      tablefmt="orgtbl"))
+
+            if total_points > max_points:
+                max_points = total_points
+                winner = tc
+
+        assert winner is not None, ("Winner is not set, cannot publish "
+                                    f"the results. There are "
+                                    f"{len(qevent.get_team_controllers())} "
+                                    "available team controllers.")
+
+        winner_players = "\n".join([f"▫️{user.name}"
+                          for user in winner.distributor.users.values()])
+        self.distributor.notify_template(
+                "quest_results",
+                quest_name=qevent.quest.name,
+                quest_description=qevent.quest.description,
+                winner_name=winner.team.name,
+                winner_players=winner_players)
+
     def process_change(self, qevent, newstate):
         if newstate == EventState.SCHEDULED:
             qevent_id = self._event_mapper.register_event(qevent)
@@ -143,8 +198,9 @@ class QuestController():
                 qevent.annotations.pop(qevent_id)
                 logger.info("QuestEvent instance is now removed from "
                             f"EventIdMapper by qevent_id={qevent_id}")
-
-            self.distributor.notify("Quest is finished!")
+            self.stop_quest(qevent)
+            self.publish_results(qevent)
+            self.clear_quest(qevent)
 
     def update(self):
         """
@@ -300,14 +356,7 @@ class TeamController():
             logger.info(f"Team team_definition.name='{self.team.name}' "
                          "has completed all available tasks")
 
-            formatted_appraise = [
-                [f"#{idx + 1}", *item]
-                for idx, item in enumerate(self._eff_controller.appraise())]
-            self.distributor.notify_template(
-                "quest_no_tasks_left",
-                total_points=self._eff_controller.appraise_total(),
-                list_points=tabulate.tabulate(formatted_appraise,
-                                              tablefmt="orgtbl"))
+            self.distributor.notify_template("quest_no_tasks_left")
             self.finish()
             return False
         else:
@@ -357,4 +406,18 @@ class TeamController():
                     f"has stopped the quest")
         self._is_running = False
         self.distributor.notify_template("quest_stopped")
+
+    def clear(self):
+        """
+        clears all subscribed users
+        """
+
         self.distributor.clear()
+
+    def get_results(self):
+        """
+        returns a tuple of appraise_total(), appraise() as a result
+        """
+
+        return (self._eff_controller.appraise_total(),
+                self._eff_controller.appraise())
