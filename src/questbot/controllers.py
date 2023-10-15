@@ -294,6 +294,7 @@ class TeamController():
             logger.info(f"Team team_definition.name='{self.team.name}' "
                          "has completed all available tasks")
             self.distributor.notify_template("quest_no_tasks_left")
+            self.finish()
             return False
         else:
             logger.info(f"Team team_definition.name='{self.team.name}' "
@@ -320,14 +321,25 @@ class TeamController():
         self.current_task = -1
         self.next_task()
 
-    def stop(self):
+    def finish(self):
         """
-        stops giving tasks for team
-        clears all subscribed users
+        stops getting answers & giving hints
+        saves the timestamp when team finished
         """
 
         logger.info(f"Team team_definition.name='{self.team.name}' "
                     f"has finished the quest")
+        self._is_running = False
+
+    def stop(self):
+        """
+        stops getting answers & giving hints
+        notifies all subscribed users about quest being stopped
+        clears all subscribed users
+        """
+
+        logger.info(f"Team team_definition.name='{self.team.name}' "
+                    f"has stopped the quest")
         self._is_running = False
         self.distributor.notify_template("quest_stopped")
         self.distributor.clear()
