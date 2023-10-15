@@ -145,13 +145,15 @@ class UserController():
             raise KeyError(f"No user is found for user_id={user_id}")
 
         qevent_id = " ".join(context.args)
-        answer_tmpl = self._bot.get_answer_template(
-                                        "register_qevent_fail", lang_code)
-        if self._validate_qevent_id(qevent_id):
-            if self.controller.join_quest(user, qevent_id):
-                answer_tmpl = self._bot.get_answer_template(
-                                        "register_qevent_success", lang_code)
+        template_name = "register_qevent_fail"
+        if user.state != UserState.IDLE:
+            template_name = "register_while_playing"
+        else:
+            if self._validate_qevent_id(qevent_id):
+                if self.controller.join_quest(user, qevent_id):
+                    template_name = "register_qevent_success"
 
+        answer_tmpl = self._bot.get_answer_template(template_name, lang_code)
         answer = answer_tmpl.substitute(qevent_id=qevent_id)
         update.message.reply_text(answer, parse_mode=ParseMode.HTML)
 
