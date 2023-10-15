@@ -103,6 +103,10 @@ class EventDistributor():
         self._users = {}
         self._bot = BotTemplates()
 
+    @property
+    def users(self):
+        return self._users
+
     def subscribe(self, user):
         """
         subscribes user to events
