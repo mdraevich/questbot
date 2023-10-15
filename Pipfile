@@ -10,6 +10,7 @@ jinja2 = "*"
 pytimeparse = "*"
 jsonschema = "*"
 namesgenerator = "*"
+tabulate = "*"
 
 [dev-packages]
 pytest = "*"
