@@ -167,7 +167,7 @@ class QuestController():
                 winner_name=winner.team.name,
                 winner_players=winner_players)
 
-    def process_change(self, qevent, newstate):
+    def process_change(self, qevent, curstate, newstate):
         if newstate == EventState.SCHEDULED:
             qevent_id = self._event_mapper.register_event(qevent)
             qevent.annotations["qevent_id"] = qevent_id
@@ -183,7 +183,7 @@ class QuestController():
                 teams="\n".join([ f"▫️{team.name}"
                                   for team in qevent.quest.get_teams() ]))
 
-        elif newstate == EventState.RUNNING:
+        elif curstate == EventState.SCHEDULED and newstate == EventState.RUNNING:
             qevent_id = qevent.annotations.get("qevent_id", "")
             if self._event_mapper.remove_event(qevent_id):
                 qevent.annotations.pop("qevent_id")
@@ -192,7 +192,7 @@ class QuestController():
 
             self.run_quest(qevent)
 
-        elif newstate == EventState.FINISHED:
+        elif curstate == EventState.RUNNING and newstate == EventState.FINISHED:
             qevent_id = qevent.annotations.get("qevent_id", "")
             if self._event_mapper.remove_event(qevent_id):
                 qevent.annotations.pop(qevent_id)
@@ -227,7 +227,7 @@ class QuestController():
                 if curstate != newstate:
                     logger.info(f"quest event ['{qevent.quest.name}'] changed "
                                 f"its state: {curstate.name} => {newstate.name}")
-                    self.process_change(qevent, newstate)
+                    self.process_change(qevent, curstate, newstate)
                 qevent.state = newstate
 
             time.sleep(self.UPDATER_INTERVAL)

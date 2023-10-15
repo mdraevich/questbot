@@ -23,6 +23,8 @@ from telegram import (
 from questbot.users import User, UserState
 from questbot.controllers import QuestController, TeamController
 from questbot.telegram.answers import BotTemplates
+from questbot.storage import DataStorage
+
 
 logger = logging.getLogger(__name__)
 
@@ -33,12 +35,36 @@ class UserController():
     using some bot commands
     """
 
-    def __init__(self, dispatcher, quest_controller):
+    def __init__(self, dispatcher, quest_controller, storage_path):
         self.controller = quest_controller
         self.dispatcher = dispatcher
         self._bot = BotTemplates()
         self._users = {}
+        self._storage = DataStorage(storage_path)
         self._configure_routing()
+        self.restore_users()
+
+    def save_users(self):
+        serialized_users = {}
+        for key, value in self._users.items():
+            serialized_users[key] = {
+                "name": value.name,
+                "user_id": value.user_id,
+                "chat_id": value.chat_id,
+                "lang_code": value.lang_code
+            }
+        self._storage.save(serialized_users)
+
+    def restore_users(self):
+        serialized_users = self._storage.load()
+        if serialized_users is not None:
+            for key, value in serialized_users.items():
+                self._register_new_user(value["user_id"],
+                                        value["chat_id"],
+                                        value["name"], "")
+                user = self._get_user(value["user_id"])
+                user.lang_code = value.get("lang_code", "")
+                self.controller.distributor.subscribe(user)
 
     @property
     def dispatcher(self):
@@ -90,6 +116,7 @@ class UserController():
             user = User(user_id, chat_id, self.dispatcher)
             user.name = f"{first_name} {last_name}".strip()
             self._users[user_id] = user
+            self.save_users()
             return True
 
     def _get_user(self, user_id):
